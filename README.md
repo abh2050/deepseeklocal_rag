@@ -107,16 +107,6 @@ This approach allows us to interact with an LLM locally, making it a powerful wa
 4. Local inference via Ollama
 5. Stream processing and response rendering
 
-## Configuration
-
-Key parameters can be adjusted in `config.py`:
-```python
-CHUNK_SIZE = 1000
-CHUNK_OVERLAP = 200
-VECTOR_DISTANCE_THRESHOLD = 0.75
-MAX_CONTEXT_CHUNKS = 4
-```
-
 ## Performance Considerations
 
 - **Memory Usage**: Vector store size scales with document corpus
