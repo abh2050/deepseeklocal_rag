@@ -22,25 +22,26 @@ This system enables local LLM inference using DeepSeek models, optimized for App
 
 ## Quick Start
 
-1. Install Ollama:
-```bash
-brew install ollama
-```
-
-2. Pull the DeepSeek model:
-```bash
-ollama pull deepseek-coder:7b-instruct-q4_K_M
-```
-
-3. Install dependencies:
+1. Install dependencies:
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-4. Launch the application:
+2. Launch the application:
 ```bash
 streamlit run app.py
 ```
+
+## **Install & import relevant packages**
+
+To build a simple chatbot using Python, we need to install the following packages. Each package serves a specific purpose in our chatbot pipeline:
+
+- **`ollama`**: This package allows us to run large language models (LLMs) locally. It simplifies interactions with models like LLaMA and Mistral.
+- **`langchain`**: A framework for building applications powered by LLMs. It provides tools for chaining prompts, managing memory, and integrating models.
+- **`chromadb`**: A vector database used for storing and retrieving text embeddings. This is essential for making the chatbot context-aware.
+- **`gradio`**: A simple way to build web-based interfaces for machine learning models. We’ll use it to create a user-friendly chatbot interface.
+- **`langchain-community`**: A collection of integrations and utilities that extend `langchain`, making it easier to work with external tools and databases.
+- **`pymupdf`**: To work with PDF documents, we need to install `pymupdf` which makes it easy to handle PDF files. 
 
 ## Architecture
 
@@ -50,6 +51,51 @@ streamlit run app.py
 3. Vector embedding generation
 4. ChromaDB persistence layer
 
+
+## **Call DeepSeek R1 1.5B via API**
+
+we use `ollama.chat()` to generate a response from DeepSeek R1 1.5B (which is installed locally). Let’s break it down:
+
+- **Choosing the Model**: We specify `"deepseek-r1:1.5b"` using the `model` argument.
+- **Passing User Messages**: The `messages` parameter is a list of interactions, where each message contains:
+  - `"role": "user"` – Indicates that the message is from the user.
+  - `"content": "Explain Newton's second law of motion"` – The actual question asked.
+- **Extracting and Printing the Response**: The model generates a structured response, where the content of the reply is stored in `response["message"]["content"]`. We print this output to display the answer.
+
+## Preprocess the PDF Document for RAG
+
+We will now create a function that pre-processes the PDF file for RAG. Below is a breakdown of its logic:
+
+- **Check if a PDF is provided**: If no file is uploaded, the function returns `None`, preventing unnecessary processing.
+- **Extract text from the PDF**: Uses `PyMuPDFLoader` to load and extract raw text from the document.
+- **Split the text into chunks**: Since LLMs process smaller text fragments better, we use `RecursiveCharacterTextSplitter`. Each chunk contains **500 characters**, with an **overlap of 100 characters** to maintain context.
+- **Generate embeddings for each chunk**: Uses `OllamaEmbeddings` with the `"deepseek-r1:1.5b"` model to convert text into **numerical vectors**. These embeddings allow us to find **meaning-based matches** rather than exact keyword searches.
+- **Store embeddings in a vector database**: We use `ChromaDB` to **store and organize** the generated embeddings efficiently. The data is **persisted** in `"./chroma_db"` to avoid recomputing embeddings every time.
+- **Create a retriever for searching the database**: The retriever acts like a **smart search engine**, enabling the chatbot to fetch the most relevant text when answering questions.
+- **Return essential components**
+    - `text_splitter` (for future text processing)
+    - `vectorstore` (holding the document embeddings)
+    - `retriever` (allowing AI-powered search over the document)
+
+## **What are embeddings?**
+Embeddings are **numerical representations of text** that capture meaning. Instead of treating words as just sequences of letters, embeddings transform them into **multi-dimensional vectors** where similar words or sentences **are placed closer together**.
+
+![image](https://miro.medium.com/v2/resize:fit:1400/1*OEmWDt4eztOcm5pr2QbxfA.png)
+_Source: https://medium.com/towards-data-science/word-embeddings-intuition-behind-the-vector-representation-of-the-words-7e4eb2410bba_
+
+### **Intuition: how do embeddings work?**
+Imagine a **map of words**:
+- Words with **similar meanings** (*cat* and *dog*) are **closer together**.
+- Words with **different meanings** (*cat* and *car*) are **farther apart**.
+- Sentences or paragraphs with similar **context** will have embeddings that are **close to each other**.
+
+This means when a user asks a question, the LLM doesn’t just look for **exact words**—it finds the **most relevant text based on meaning**, even if the wording is different.
+
+### **Why this matters?**
+This function enables a chatbot to **understand and retrieve information from PDFs efficiently**. Instead of simple keyword searches, it **finds contextually relevant information**, making AI responses **more accurate and useful**.
+
+
+This approach allows us to interact with an LLM locally, making it a powerful way to answer queries without relying on external APIs.
 ### Inference Pipeline
 1. Query embedding generation
 2. Semantic search in vector space
@@ -96,11 +142,6 @@ MAX_CONTEXT_CHUNKS = 4
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
-
-### Testing
-```bash
-pytest tests/
-```
 
 ## License
 MIT License - See LICENSE file for details
