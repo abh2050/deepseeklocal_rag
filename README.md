@@ -6,6 +6,10 @@ A production-ready implementation for running DeepSeek language models locally o
 
 This system enables local LLM inference using DeepSeek models, optimized for Apple Silicon architecture. It includes a RAG implementation using ChromaDB as the vector store, allowing for context-aware document analysis without external API dependencies.
 
+
+![img](https://github.com/abh2050/deepseeklocal_rag/blob/main/pic1.jpeg)
+![img](https://github.com/abh2050/deepseeklocal_rag/blob/main/pic2.jpeg)
+![img](https://github.com/abh2050/deepseeklocal_rag/blob/main/pic3.jpeg)
 ## Key Features
 - **Local Inference**: Full local execution on Apple Silicon using Metal acceleration
 - **RAG Pipeline**: Document processing with semantic search via ChromaDB
